@@ -153,7 +153,7 @@ local constants = {
     plugins = "core_cache",
     tags = "cache",
     ca_certificates = "core_cache",
-    vaults = "vault_cache",
+    vaults = "core_cache",
     key_sets = "core_cache",
     keys = "core_cache",
   }, {
