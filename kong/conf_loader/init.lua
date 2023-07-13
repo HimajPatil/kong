@@ -565,6 +565,7 @@ local CONF_SENSITIVE = {
 local CONF_NO_VAULT = {
   prefix = true,
   vaults = true,
+  database = true,
   lmdb_environment_path = true,
   lmdb_map_size = true,
   lua_ssl_trusted_certificate = true,
