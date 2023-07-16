@@ -9,6 +9,7 @@ local hooks = require "kong.hooks"
 
 
 local ngx = ngx
+local header = ngx.header
 local sub = string.sub
 local find = string.find
 local type = type
@@ -277,14 +278,10 @@ function _M.cors_filter(self)
   ngx.header["Access-Control-Allow-Credentials"] = "true"
 
   if ngx.req.get_method() == "OPTIONS" then
-    ngx.header["Access-Control-Allow-Methods"] = "GET,PUT,PATCH,POST,DELETE"
-
     local request_allow_headers = self.req.headers["Access-Control-Request-Headers"]
     if request_allow_headers then
       ngx.header["Access-Control-Allow-Headers"] = request_allow_headers
     end
-
-    return kong.response.exit(204)
   end
 end
 
@@ -407,9 +404,9 @@ end
 local function options_method(methods)
   return function()
     kong.response.exit(204, nil, {
-      ["Allow"] = methods,
-      ["Access-Control-Allow-Methods"] = methods,
-      ["Access-Control-Allow-Headers"] = "Content-Type",
+      ["Allow"] = header["Access-Control-Allow-Methods"] or methods,
+      ["Access-Control-Allow-Methods"] = header["Access-Control-Allow-Methods"] or methods,
+      ["Access-Control-Allow-Headers"] = header["Access-Control-Allow-Headers"] or "Content-Type"
     })
   end
 end

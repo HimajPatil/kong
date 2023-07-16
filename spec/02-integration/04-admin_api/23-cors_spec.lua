@@ -24,26 +24,35 @@ describe("Admin API - CORS -", function()
       end)
 
       describe("Pre-flight request", function ()
-        it("should return fixed allow methods", function ()
-          local res, err = client:send({
-            path = "/",
-            method = "OPTIONS",
-            headers = {}
-          })
-          assert.is_nil(err)
-          assert.res_status(204, res)
-          assert.equal("GET,PUT,PATCH,POST,DELETE", res.headers["Access-Control-Allow-Methods"])
+        it("should return different allow-methods for specific route", function ()
+          local res
 
-          local res, err = client:send({
-            path = "/",
+          res = assert(client:send {
             method = "OPTIONS",
-            headers = {
-              ["Access-Control-Request-Method"] = "PATCH",
-            }
+            path = "/"
           })
-          assert.is_nil(err)
+
           assert.res_status(204, res)
-          assert.equal("GET,PUT,PATCH,POST,DELETE", res.headers["Access-Control-Allow-Methods"])
+          assert.equal("GET, HEAD, OPTIONS", res.headers["Allow"])
+          assert.equal("GET, HEAD, OPTIONS", res.headers["Access-Control-Allow-Methods"])
+
+          res = assert(client:send {
+            method = "OPTIONS",
+            path = "/routes"
+          })
+
+          assert.res_status(204, res)
+          assert.equal("GET, HEAD, OPTIONS, POST", res.headers["Allow"])
+          assert.equal("GET, HEAD, OPTIONS, POST", res.headers["Access-Control-Allow-Methods"])
+
+          res = assert(client:send {
+            method = "OPTIONS",
+            path = "/routes/test"
+          })
+
+          assert.res_status(204, res)
+          assert.equal("DELETE, GET, HEAD, OPTIONS, PATCH, PUT", res.headers["Allow"])
+          assert.equal("DELETE, GET, HEAD, OPTIONS, PATCH, PUT", res.headers["Access-Control-Allow-Methods"])
         end)
 
         it("should allow headers from the request", function ()
@@ -54,7 +63,7 @@ describe("Admin API - CORS -", function()
           })
           assert.is_nil(err)
           assert.res_status(204, res)
-          assert.is_nil(res.headers["Access-Control-Allow-Headers"])
+          assert.equal("Content-Type", res.headers["Access-Control-Allow-Headers"])
 
           local res, err = client:send({
             path = "/",

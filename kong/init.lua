@@ -1595,15 +1595,13 @@ function Kong.handle_error()
 end
 
 
-local function serve_content(module, options)
+local function serve_content(module)
   local ctx = ngx.ctx
   ctx.KONG_PROCESSING_START = start_time() * 1000
   ctx.KONG_ADMIN_CONTENT_START = ctx.KONG_ADMIN_CONTENT_START or now() * 1000
   ctx.KONG_PHASE = PHASES.admin_api
 
   log_init_worker_errors(ctx)
-
-  options = options or {}
 
   ngx.header["Access-Control-Allow-Origin"] = ngx.req.get_headers()["Origin"] or "*"
 
@@ -1615,7 +1613,7 @@ local function serve_content(module, options)
 end
 
 
-function Kong.admin_content(options)
+function Kong.admin_content()
   kong.worker_events.poll()
 
   local ctx = ngx.ctx
@@ -1623,7 +1621,7 @@ function Kong.admin_content(options)
     ctx.workspace = kong.default_workspace
   end
 
-  return serve_content("kong.api", options)
+  return serve_content("kong.api")
 end
 
 
